@@ -2,6 +2,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flare/Request.dart';
 import 'package:flare/connection.dart';
 
 void main(){
@@ -20,7 +21,8 @@ class Flare {
   void handleConnection(Socket socket){
     socket.listen((data){
       print("Connection from ${socket.address}");
-      print(utf8.decode(data));
+      // print(utf8.decode(data));
+      Request.fromRawData(data);
     },
     onError: (e){
       print("error");
