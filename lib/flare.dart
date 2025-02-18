@@ -22,7 +22,8 @@ class Flare {
     socket.listen((data){
       print("Connection from ${socket.address}");
       // print(utf8.decode(data));
-      Request.fromRawData(data);
+      final request = Request.fromRawData(data);
+      
     },
     onError: (e){
       print("error");
