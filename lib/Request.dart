@@ -18,7 +18,7 @@ class Request {
     required this.queryParameters
   });
 
-  static fromRawData(List<int> data){
+  factory Request.fromRawData(List<int> data){
     final rawRequest = utf8.decode(data);
     final lines = rawRequest.split('\r\n');
    
@@ -37,6 +37,8 @@ class Request {
         headers[parts[0]] = parts[1];
       }
     }
-    print(headers);
+    final body = lines.last;
+
+    return Request(method: method, path: path, headers: headers, body: body, queryParameters: queryParams);
   }
 }
