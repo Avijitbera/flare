@@ -7,23 +7,52 @@ class Response {
   final Socket socket;
   Response(this.socket);
 
-  void send(String data){
-    final response = 'HTTP/1.1 200 OK\r\n'
-        'Content-Type: text/plain\r\n'
-        'Content-Length: ${data.length}\r\n'
-        '\r\n'
-        '$data'; 
+  int _statusCode = 200;
+  final Map<String, String> _headers = {};
 
-    socket.write(response);
+  void send(String data){
+     _headers['Content-Type'] = 'text/plain';
+    _headers['Content-Length'] = data.length.toString();
+    _sendResponse(data);
   }
 
   void json(Map<String, dynamic> data){
     final jsonString = jsonEncode(data);
-    final response = 'HTTP/1.1 200 OK\r\n'
-        'Content-Type: application/json\r\n'
-        'Content-Length: ${jsonString.length}\r\n'
-        '\r\n'
-        '$jsonString';
-    socket.write(response);
+    _headers['Content-Type'] = 'application/json';
+    _headers['Content-Length'] = jsonString.length.toString();
+    _sendResponse(jsonString);
+  }
+
+  Response status(int code) {
+    _statusCode = code;
+    return this;
+  }
+
+  void _sendResponse(String body) {
+    final response = StringBuffer();
+    response.write('HTTP/1.1 $_statusCode ${_getStatusMessage(_statusCode)}\r\n');
+    _headers.forEach((key, value) {
+      response.write('$key: $value\r\n');
+    });
+    response.write('\r\n');
+    response.write(body);
+    socket.write(response.toString());
+  }
+
+
+  /// Get the status message for a given status code
+  String _getStatusMessage(int code) {
+   switch (code) {
+      case 200:
+        return 'OK';
+      case 201:
+        return 'Created';
+      case 404:
+        return 'Not Found';
+      case 500:
+        return 'Internal Server Error';
+      default:
+        return '';
+    }
   }
 }

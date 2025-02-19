@@ -91,7 +91,7 @@ class Flare {
 
           await routeHandler.handler(request, response);
       }else{
-        response;
+        response.status(404).send("Path not found");
       }
     });
   }
