@@ -60,5 +60,40 @@ class Flare {
   void delete(String path, Handler handler, {List<Middleware> middleware = const []}) {
     _routes['DELETE']![path] = RouteHandler(handler, middleware);
   }
+
+
+  Future<void> listen({
+    int port  = 8080,
+    String host = '0.0.0.0',
+  })async{
+
+    final serverSocket = await ServerSocket.bind(host, port);
+    await for (final socket in serverSocket) {
+      _handleConnection(socket);
+    }
+  }
+
+  void _handleConnection(Socket socket) {
+    socket.listen((data)async{
+      final request = Request.fromRawData(data);
+      final response = Response(socket);
+
+      for (final middleware in _middlewares) {
+          await middleware(request, response);
+        }
+
+        final routeHandler = _routes[request.method]?[request.path];
+
+      if(routeHandler != null){
+        for (final middleware in routeHandler.middleware) {
+            await middleware(request, response);
+          }
+
+          await routeHandler.handler(request, response);
+      }else{
+        response;
+      }
+    });
+  }
   
 }
