@@ -3,33 +3,42 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flare/Request.dart';
+import 'package:flare/Response.dart';
 import 'package:flare/connection.dart';
 
 void main(){
   Flare flare = Flare();
-  flare.start();
+  // flare.start();
 }
 
 class Flare {
-  void start()async{
-    ServerSocket server = await ServerSocket.bind(InternetAddress.anyIPv4, 3000);
-    await for(var socket in  server){
-      handleConnection(socket);
-    }
+ final Map<String, Map<String, Function(Request, Response)>> _routes = {
+    'GET': {},
+    'POST': {},
+    'PUT': {},
+    'DELETE': {},
+  };
+
+  final List<Function(Request, Response)> _middlewares = [];
+
+  void use(Function(Request, Response) middleware) {
+    _middlewares.add(middleware);
   }
 
-  void handleConnection(Socket socket){
-    socket.listen((data){
-      print("Connection from ${socket.address}");
-      // print(utf8.decode(data));
-      final request = Request.fromRawData(data);
-      
-    },
-    onError: (e){
-      print("error");
-    },
-    onDone: () {
-      print("done");
-    },);
+  void get(String path, Function(Request, Response) handler) {
+    _routes['GET']![path] = handler;
   }
+
+  void post(String path, Function(Request, Response) handler) {
+    _routes['POST']![path] = handler;
+  }
+
+  void put(String path, Function(Request, Response) handler) {
+    _routes['PUT']![path] = handler;
+  }
+
+  void delete(String path, Function(Request, Response) handler) {
+    _routes['DELETE']![path] = handler;
+  }
+  
 }
