@@ -8,6 +8,8 @@ import 'package:flare/connection.dart';
 import 'package:flare/router/RouteHandler.dart';
 import 'package:flare/utils.dart';
 
+import 'router/Router.dart';
+
 void main(){
   Flare flare = Flare();
   // flare.start();
@@ -27,8 +29,20 @@ class Flare {
     _middlewares.add(middleware);
   }
 
-  void useRouter(String path){
-
+  void useRouter(String path, Router router, {List<Middleware> middleware = const []}) {
+    for (final method in router.routes.keys) {
+      for (final routePath in router.routes[method]!.keys) {
+        final fullPath = '$path${routePath == '/' ? '' : routePath}';
+        _routes[method]![fullPath] = RouteHandler(
+          router.routes[method]![routePath]!.handler,
+          [
+            ...middleware, // Middleware applied when mounting the router
+            ...router.middlewares, // Router-level middlewares
+            ...router.routes[method]![routePath]!.middleware, // Route-specific middlewares
+          ],
+        );
+      }
+    }
   }
 
   void get(String path, Handler handler, {List<Middleware> middleware = const []}) {
