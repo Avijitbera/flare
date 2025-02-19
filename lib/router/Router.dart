@@ -1,7 +1,7 @@
 
 
-import 'Request.dart';
-import 'Response.dart';
+import '../Request.dart';
+import '../Response.dart';
 
 class Router {
    final Map<String, Map<String, Function(Request, Response)>> _routes = {
