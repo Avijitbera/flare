@@ -16,14 +16,16 @@ void main(){
   });
 
   app.post("/create", (req, res)async{
-    return res.json({"body":req.rawBody});
+    return res.json({"body":req.bodyAsJson});
   });
 
   app.put("/update", (req, res)async{
-
+    return res.json({"bodyUpdate":req.bodyAsJson});
   },
   middleware: [
-
+    (r, res)async{
+      print("Update middleware");
+    },
   ]);
 
   app.listen(port: 3000);
