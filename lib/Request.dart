@@ -7,14 +7,14 @@ class Request {
   final String method;
   final String path;
   final Map<String, String> headers;
-  final String body;
+  final List<int> rawBody;
   final Map<String, String> queryParameters;
 
   Request({
     required this.method,
     required this.path,
     required this.headers,
-    required this.body,
+    required this.rawBody,
     required this.queryParameters
   });
 
@@ -24,21 +24,42 @@ class Request {
    
 
     final requestLine = lines[0].split(' ');
+
+    var bodyStartIndex = 1;
     
     final method = requestLine[0];
     final path = requestLine[1].split('?')[0];
     final queryParams = Uri.parse(requestLine[1]).queryParameters;
    final headers = <String, String>{};
+  
 
     for (int i = 1; i < lines.length; i++) {
-      final line = lines[i];
-      if (line.isNotEmpty) {
-        final parts = line.split(': ');
-        headers[parts[0]] = parts[1];
+      // final line = lines[i];
+      if (lines[i].isEmpty) {
+        bodyStartIndex = i+1;
+        break;
+        // final parts = line.split(': ');
+        // headers[parts[0]] = parts[1];
       }
+      final parts = lines[i].split(': ');
+      headers[parts[0]] = parts[1];
     }
-    final body = lines.last;
+    final body = lines.sublist(bodyStartIndex).join('\r\n');
+    // final body = lines.last;
 
-    return Request(method: method, path: path, headers: headers, body: body, queryParameters: queryParams);
+    return Request(method: method,
+     path: path, headers: headers, 
+     rawBody: utf8.encode(body),
+      queryParameters: queryParams);
+  }
+
+  String get bodyAsString => utf8.decode(rawBody);
+
+  Map<String, dynamic> get bodyAsJson {
+    try {
+      return jsonDecode(bodyAsString);
+    } catch (e) {
+      throw FormatException('Invalid JSON data');
+    }
   }
 }

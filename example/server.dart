@@ -16,7 +16,7 @@ void main(){
   });
 
   app.post("/create", (req, res)async{
-    return res.json({"body":req.body});
+    return res.json({"body":req.rawBody});
   });
 
   app.put("/update", (req, res)async{
