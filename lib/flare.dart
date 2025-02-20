@@ -12,6 +12,7 @@ import 'router/Router.dart';
 
 void main(){
   Flare flare = Flare();
+  
   // flare.start();
 }
 
@@ -93,6 +94,13 @@ class Flare {
       }else{
         response.status(404).send("Path not found");
       }
+      await socket.close();
+    },
+    onError: (e){
+      socket.destroy();
+    },
+    onDone: (){
+      socket.destroy();
     });
   }
   
