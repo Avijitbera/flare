@@ -101,5 +101,9 @@ class Request {
     }
     return -1;
   }
+   String? _extractBoundary(String contentType) {
+    final match = RegExp(r'boundary=([^;]+)').firstMatch(contentType);
+    return match?.group(1);
+  }
   
 }
