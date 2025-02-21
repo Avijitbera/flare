@@ -76,5 +76,30 @@ class Request {
     }
     return formData;
   }
+
+  List<List<int>> _splitMultipartBody(List<int> body, String boundary){
+    final boundaryBytes = utf8.encode('--$boundary');
+    final parts = <List<int>>[];
+    var start = 0;
+    while(true){
+      final end = _findBoundary(body, boundaryBytes, start);
+      if(end == -1){
+        break;
+      }
+      parts.add(body.sublist(start, end));
+      start = end + boundaryBytes.length + 2;
+    }
+    return parts;
+  }
+
+  int _findBoundary(List<int> body, List<int> boundary, int start){
+    for(var i = start; i < body.length - boundary.length; i++){
+      if(body[i] == boundary[0]
+      && body.sublist(i, i + boundary.length) == boundary){
+        return i;
+      }
+    }
+    return -1;
+  }
   
 }
