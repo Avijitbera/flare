@@ -62,4 +62,19 @@ class Request {
       throw FormatException('Invalid JSON data');
     }
   }
+
+  Map<String, String> get bodyAsFormData {
+
+    final formData = <String, String>{};
+    final pairs = bodyAsString.split('&');
+    for(final pair in pairs){
+      final keyValue = pair.split('=');
+      if(keyValue.length == 2){
+        formData[Uri.decodeComponent(keyValue[0])] =
+            Uri.decodeComponent(keyValue[1]);
+      }
+    }
+    return formData;
+  }
+  
 }
