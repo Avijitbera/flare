@@ -77,6 +77,39 @@ class Request {
     return formData;
   }
 
+  Future<Map<String, dynamic>> parseMultipart()async{
+    final boundary  = _extractBoundary(headers['Content-Type'] ?? '');
+    if(boundary == null){
+      throw FormatException('Invalid multipart request');
+    }
+
+    final parts = _splitMultipartBody(rawBody, boundary);
+    final result = <String, dynamic>{};
+    for(final part in parts){
+      final headers ;
+    }
+    return result;
+  }
+
+  Map<String, String> _parsePartHeaders(List<int> part){
+    final headers = <String, String>{};
+    var headerEnd = part.indexOf(13);
+
+    if(headerEnd == -1) return headers;
+
+    final headerLines = utf8.decode(part.sublist(0, headerEnd)).split('\r\n');
+
+    for(final line in headerLines){
+      final separator = line.indexOf(':');
+      if(separator != -1){
+        headers[line.substring(0, separator).toLowerCase()]
+        = line.substring(separator + 1).trim();
+      }
+    }
+    return headers;
+  }
+
+
   List<List<int>> _splitMultipartBody(List<int> body, String boundary){
     final boundaryBytes = utf8.encode('--$boundary');
     final parts = <List<int>>[];
