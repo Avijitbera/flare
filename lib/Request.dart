@@ -86,9 +86,38 @@ class Request {
     final parts = _splitMultipartBody(rawBody, boundary);
     final result = <String, dynamic>{};
     for(final part in parts){
-      final headers ;
+      final headers = _parsePartHeaders(part);
+      final body = _extractPartBody(part);
+
+      if(headers.containsKey('content-disposition')){
+        final disposition = headers['content-disposition']!;
+        final match = RegExp(r'name="([^"]+)"').firstMatch(disposition);
+          final name = match!.group(1)!;
+        if(match != null){
+          if(disposition.contains('filename="')){
+            final filenameMatch =
+                RegExp(r'filename="([^"]+)"').firstMatch(disposition);
+            final filename = filenameMatch?.group(1) ?? 'file';
+            result[name] = {
+              'filename': filename,
+              'data': body,
+            };
+          }
+        }else{
+          result[name] = utf8.decode(body);
+        }
+      }
     }
     return result;
+  }
+
+  List<int> _extractPartBody(List<int> part){
+    var bodyStart = part.indexOf(13);
+    if(bodyStart == -1){
+      return [];
+    }
+    bodyStart += 2;
+    return part.sublist(bodyStart, part.length - 2);
   }
 
   Map<String, String> _parsePartHeaders(List<int> part){
