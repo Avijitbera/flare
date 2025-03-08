@@ -10,4 +10,12 @@ class WebSocket{
   final String socketId;
 
   WebSocket(this.socket, this.request, this.socketId);
+
+  void send(String message){
+    socket.write(message);
+  }
+
+  void close(){
+    socket.close();
+  }
 }
