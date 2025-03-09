@@ -7,9 +7,9 @@ import 'package:flare/Response.dart';
 import 'package:flare/connection.dart';
 import 'package:flare/router/RouteHandler.dart';
 import 'package:flare/utils.dart';
-
+import 'dart:io';
 import 'router/Router.dart';
-
+import 'package:socket_io/socket_io.dart' as socket;
 void main(){
   Flare flare = Flare();
   
@@ -17,6 +17,8 @@ void main(){
 }
 
 class Flare {
+  
+
  final Map<String, Map<String, RouteHandler>> _routes = {
     'GET': {},
     'POST': {},
